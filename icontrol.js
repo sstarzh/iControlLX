@@ -1,35 +1,36 @@
 /**
  * An iControlLX extension that handles VS IP Address through an IPAM solution
 */
-
+/**
 var logger = require('f5-logger').getInstance();
+*/
+var logger = logger;
 var DEBUG = true;
-var WorkerName = "my-app-interface";
-var IWF_IP = "10.1.10.20";
-var IPAM_IP = "10.1.10.21";
-var IPAM_Port = "79";
+var WorkerName = "getvs";
+var bigIp = "10.1.10.20";
+var bigPort = "443";
 var http = require('http');
 var tenantName = "student";
 
-function ipam_extension() {
+function icontrollx() {
 }
 
 //we define our worker path
-ipam_extension.prototype.WORKER_URI_PATH = "/shared/my-app-interface";
+icontrollx.WORKER_URI_PATH = "/shared/my-app-interface";
 
-ipam_extension.prototype.isPublic = true;
+icontrollx.isPublic = true;
 
 
 // Enable worker URL routing as passthrough.
-ipam_extension.prototype.isPassThrough = true;
+icontrollx.isPassThrough = true;
 
 //triggered when our worker is loaded
-ipam_extension.prototype.onStart = function (success) {
+icontrollx.onStart = function (success) {
   logger.info(WorkerName + " - onStart()");
   success();
 };
 
-ipam_extension.prototype.onGet = function (restOperation) {
+icontrollx.onGet = function (restOperation) {
   logger.info(WorkerName + " - onGet()");
   var uriValue = restOperation.getUri();
   var serviceName = uriValue.path.toString().split("/")[3];
@@ -43,7 +44,7 @@ ipam_extension.prototype.onGet = function (restOperation) {
   var uri = aThis.restHelper.buildUri({
     protocol: aThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
     port: "443",
-    hostname: IWF_IP,
+    hostname: bigIp,
     path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/" + serviceName
   });
 
@@ -74,7 +75,7 @@ ipam_extension.prototype.onGet = function (restOperation) {
       var getConnectorNameuri = bThis.restHelper.buildUri({
         protocol: aThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
         port: "443",
-        hostname: IWF_IP,
+        hostname: bigIp,
         path: "/mgmt/cm/cloud/connectors/local/" + connectorId
       });
 
@@ -130,7 +131,7 @@ ipam_extension.prototype.onGet = function (restOperation) {
 };
 
 
-ipam_extension.prototype.onPost = function (restOperation) {
+icontrollx.onPost = function (restOperation) {
   logger.info(WorkerName + " - onPost()");
   var newState = restOperation.getBody();
   var templateName = newState.template;
@@ -150,8 +151,8 @@ ipam_extension.prototype.onPost = function (restOperation) {
 		//uri to pull our ipam solution. I use an iRule on a bigip to simulate the transaction
 		var options = {
 			"method": "GET",
-      "hostname": IPAM_IP,
-      "port": IPAM_Port,
+      "hostname": bigPort,
+      "port": bigPort,
       "path": "/",
       "headers": {
         "cache-control": "no-cache"
@@ -181,7 +182,7 @@ ipam_extension.prototype.onPost = function (restOperation) {
         var getConnectorsuri = aThis.restHelper.buildUri({
           protocol: aThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
           port: "443",
-          hostname: IWF_IP,
+          hostname: bigIp,
           path: "/mgmt/cm/cloud/connectors/local"
         });
 
@@ -236,7 +237,7 @@ ipam_extension.prototype.onPost = function (restOperation) {
 				    var uri = bThis.restHelper.buildUri({
               protocol: bThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
               port: "443",
-              hostname: IWF_IP,
+              hostname: bigIp,
               path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/"
             });
 
@@ -268,7 +269,7 @@ ipam_extension.prototype.onPost = function (restOperation) {
 	this.completeRestOperation(restOperation);
 };
 
-ipam_extension.prototype.onPut = function (restOperation) {
+icontrollx.onPut = function (restOperation) {
   var newState = restOperation.getBody();
   this.logger.info(WorkerName + " - onPut()");
 
@@ -282,7 +283,7 @@ ipam_extension.prototype.onPut = function (restOperation) {
   var uri = aThis.restHelper.buildUri({
     protocol: aThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
     port: "443",
-    hostname: IWF_IP,
+    hostname: bigIp,
     path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/" + serviceName
   });
 
@@ -339,7 +340,7 @@ ipam_extension.prototype.onPut = function (restOperation) {
       var uri = bThis.restHelper.buildUri({
         protocol: bThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
         port: "443",
-        hostname: IWF_IP,
+        hostname: bigIp,
         path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/" + serviceName
       });
 
@@ -371,14 +372,14 @@ ipam_extension.prototype.onPut = function (restOperation) {
 };
 
 
-ipam_extension.prototype.onPatch = function(restOperation) {
+icontrollx.onPatch = function(restOperation) {
         var newState = restOperation.getBody();
 
         this.logger.info(WorkerName + " - onPatch()");
         this.completeRestOperation(restOperation);
 };
 
-ipam_extension.prototype.onDelete = function (restOperation) {
+icontrollx.onDelete = function (restOperation) {
   logger.info(WorkerName + " - onDelete()");
   var newState = restOperation.getBody();
   var serviceName = newState.name;
@@ -388,7 +389,7 @@ ipam_extension.prototype.onDelete = function (restOperation) {
 	var uri = aThis.restHelper.buildUri({
     protocol: aThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
     port: "443",
-    hostname: IWF_IP,
+    hostname: bigIp,
     path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/" + serviceName
   });
 
@@ -422,7 +423,7 @@ ipam_extension.prototype.onDelete = function (restOperation) {
 			var deleteUri = bThis.restHelper.buildUri({
         protocol: bThis.wellKnownPorts.DEFAULT_HTTPS_SCHEME,
         port: "443",
-        hostname: IWF_IP,
+        hostname: bigIp,
         path: "/mgmt/cm/cloud/tenants/" + tenantName + "/services/iapp/" + serviceName
       });
 
@@ -441,8 +442,8 @@ ipam_extension.prototype.onDelete = function (restOperation) {
 
           var options = {
             "method": "DELETE",
-            "hostname": IPAM_IP,
-            "port": IPAM_Port,
+            "hostname": bigPort,
+            "port": bigPort,
             "path": "/" + VS_IP,
             "headers": {
               "cache-control": "no-cache"
@@ -477,7 +478,7 @@ ipam_extension.prototype.onDelete = function (restOperation) {
 /**
 * handle /example HTTP request
 */
-ipam_extension.prototype.getExampleState = function () {
+icontrollx.getExampleState = function () {
   return {
         "name": "my-app-name",
         "template": "f5-http-lb",
@@ -507,4 +508,4 @@ ipam_extension.prototype.getExampleState = function () {
   };
 };
 
-module.exports = ipam_extension;
+module.exports = icontrollx;
