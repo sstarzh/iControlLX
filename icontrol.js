@@ -1,5 +1,5 @@
 /**
- * An iControlLX extension that handles VS IP Address through an IPAM solution
+ * An iControlLX extension that exposes declarative interface
 */
 
 var logger = require('f5-logger').getInstance();
